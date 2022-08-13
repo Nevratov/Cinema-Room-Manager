@@ -1,0 +1,127 @@
+package cinema
+
+import kotlin.system.exitProcess
+
+const val FRONT_PRICE = 10
+const val BACK_PRICE = 8
+const val NORMAL = 60
+
+fun main() {
+    println("Enter the number of rows:")
+    val rows = readln().toInt()
+    println("Enter the number of seats in each row:")
+    val seats = readln().toInt()
+    println()
+
+//Начало рабочего кода
+    val mutList = mutableListOf<MutableList<String>>()
+//Печать всех мест
+    for (i in 0 until rows) {
+        mutList.add(MutableList(seats) { "S" })
+    }
+
+    fun showTheSeats() {
+        println()
+        println("Cinema:")
+        // Горизонтальный отсчёт
+        print("  ")
+        for (i in 1..seats) {
+            print("$i ")
+        }
+        println()
+
+        // Отображение места юзера
+        for (i in 0 until rows) {
+            print("${i + 1} ")
+            for (j in 0 until seats) {
+                print("${mutList[i][j]} ")
+            }
+            println()
+        }
+        println()
+    }
+
+    //Количсетво купленных билетов для статистики
+    var tickets = 0
+    // Общая прибыль
+    var sum = 0
+
+    // Ввод места пользователя
+    fun buyATicket() {
+        println()
+        var freeTicket = 0
+        while (freeTicket == 0) {
+            println("Enter a row number:")
+            val rowsInd = readln().toInt()
+            println("Enter a seat number in that row:")
+            val seatsInd = readln().toInt()
+            // Замена на В - покупка билета
+            try {
+                if (mutList[rowsInd - 1][seatsInd - 1] == "S") {
+                    mutList[rowsInd - 1][seatsInd - 1] = "B"
+                    tickets++
+                    // Цена выбранного билета - Расчёт и вывод
+                    if (rows * seats < NORMAL) {
+                        println("Ticket price: $$FRONT_PRICE")
+                        sum += FRONT_PRICE
+                    } else {
+                        val frontRows = rows / 2
+                        if (rowsInd <= frontRows) {
+                            println("Ticket price: $$FRONT_PRICE")
+                            sum += FRONT_PRICE
+                        } else {
+                            println("Ticket price: $$BACK_PRICE")
+                            sum += BACK_PRICE
+                        }
+                    }
+                    println()
+
+                    freeTicket = 1 // Закрываем while
+                } else {
+                    println("That ticket has already been purchased!")
+                    println() // Отступ после вывода о дубликате билета
+                }
+            } catch (e: IndexOutOfBoundsException) {
+                println("Wrong input!")
+                println() // отступ после выводе об ошибке выхода из диапозона
+            }
+        }
+    }
+
+
+    fun statistics() {
+        println() // отступ перед модулем
+        // Билеты в процентах
+        val percentage = (100 * tickets.toFloat()) / (rows * seats)
+        val formatPercentage = "%.2f".format(percentage)
+        println("Number of purchased tickets: $tickets") // Купленные билеты
+        println(
+            when (tickets) {
+               0 -> "Percentage: 0.00%"
+               else -> "Percentage: $formatPercentage%"
+            }
+        ) // Процент купленных билетов
+        println("Current income: $$sum")
+        println("Total income: $${(rows / 2 * seats * FRONT_PRICE) +
+                ((rows - rows / 2) * seats * BACK_PRICE)}")
+
+        println()
+
+
+    }
+
+    do {
+        println("1. Show the seats")
+        println("2. Buy a ticket")
+        println("3. Statistics")
+        println("0. Exit")
+        when (readln()) {
+            "1" -> showTheSeats()
+            "2" -> buyATicket()
+            "3" -> statistics()
+            "0" -> return
+        }
+    } while (true)
+}
+
+
